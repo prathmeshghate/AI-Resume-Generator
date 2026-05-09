@@ -1,0 +1,161 @@
+#root {
+  margin: 0;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: #111827;
+}
+
+.app-header {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.app-header p {
+  margin: 0.25rem 0 0;
+  color: #4b5563;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.panel {
+  background: #f9fafb;
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.panel h2 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.75rem;
+  text-align: left;
+}
+
+.field-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.field-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: #374151;
+}
+
+input[type='text'],
+input[type='email'],
+textarea {
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.checkbox-group {
+  margin-top: 0.25rem;
+}
+
+.checkbox-group input {
+  margin-right: 0.4rem;
+}
+
+.experience-block {
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem 0.85rem;
+  margin-bottom: 0.75rem;
+  background: #ffffff;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+button {
+  border-radius: 999px;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: #111827;
+  color: white;
+}
+
+button.secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.error {
+  margin-top: 0.75rem;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}
+
+.preview {
+  min-height: 200px;
+}
+
+.placeholder {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.preview-content h3 {
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+}
+
+.preview-content h4 {
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.preview-exp {
+  margin-bottom: 0.5rem;
+}
+
+.preview-exp ul {
+  margin: 0.25rem 0 0 1.1rem;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

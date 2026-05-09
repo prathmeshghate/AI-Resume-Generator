@@ -2,24 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>{{ resume.headline or "Resume" }}</title>
+    <title>{{ resume.personal_info.full_name }} Resume</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
       * {
         box-sizing: border-box;
       }
 
+      @page {
+        margin: 0.35in;
+      }
+
       body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          sans-serif;
+        font-family: 'Fira Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         font-size: 11pt;
-        line-height: 1.4;
-        margin: 24px;
+        line-height: 1.25;
+        margin: 0.35in 0.45in;
         color: #222;
       }
 
-      h1,
-      h2,
-      h3 {
+      h1, h2 {
         margin: 0;
         padding: 0;
       }
@@ -27,97 +29,111 @@
       h1 {
         font-size: 20pt;
         font-weight: 600;
+        text-transform: uppercase;
+        text-align: center;
       }
 
       h2 {
         font-size: 13pt;
-        margin-top: 16px;
-        border-bottom: 1px solid #999;
-        padding-bottom: 2px;
+        margin-top: -4pt;
+        margin-bottom: 5pt;
         text-transform: uppercase;
         letter-spacing: 0.08em;
+        border-bottom: 1px solid #000;
+        padding-bottom: 2pt;
       }
 
-      h3 {
-        font-size: 11.5pt;
-        font-weight: 600;
-      }
-
-      .header {
+      .contact {
         text-align: center;
-        margin-bottom: 8px;
+        font-size: 10pt;
+        margin-bottom: 20pt;
       }
 
-      .headline {
-        font-size: 11.5pt;
-        font-weight: 500;
-        margin-top: 4px;
+      .contact i {
+        margin-right: 0.1em;
       }
 
       .section {
-        margin-top: 10px;
+        margin-top: 10pt;
       }
 
-      .summary {
-        margin-top: 4px;
+      .experience-item, .project-item, .education-item {
+        margin-top: 6pt;
       }
 
-      .experience-item {
-        margin-top: 6px;
+      .experience-meta, .project-meta, .education-meta {
+        display: table;
+        width: 100%;
       }
 
-      .experience-meta {
-        display: flex;
-        justify-content: space-between;
+      .experience-meta .left, .project-meta .left, .education-meta .left {
+        display: table-cell;
+        font-weight: bold;
+      }
+
+      .experience-meta .right, .project-meta .right, .education-meta .right {
+        display: table-cell;
+        text-align: right;
+        font-style: italic;
+        font-size: 10pt;
+      }
+
+      .experience-role, .project-name, .education-degree {
+        font-style: italic;
         font-size: 10pt;
       }
 
       ul {
-        margin: 4px 0 0 18px;
+        margin: 4pt 0 0 0.15in;
         padding: 0;
       }
 
       li {
-        margin-bottom: 2px;
+        margin-bottom: 2pt;
+        font-size: 10pt;
       }
 
-      .skills-list,
-      .cert-list {
-        margin-top: 4px;
+      .skills-section {
+        font-size: 10pt;
       }
 
-      .skills-list span {
-        display: inline-block;
-        margin-right: 6px;
+      .skills-section strong {
+        font-weight: bold;
+      }
+
+      .achievements ul {
+        margin-left: 0;
+        list-style: none;
+      }
+
+      .achievements li {
+        margin-bottom: 3pt;
       }
     </style>
   </head>
   <body>
     <div class="header">
-      <h1>{{ resume.headline or "Resume" }}</h1>
+      <h1>{{ resume.personal_info.full_name }}</h1>
+      <div class="contact">
+        {% if resume.personal_info.phone %}<i class="fas fa-phone"></i> {{ resume.personal_info.phone }} ~ {% endif %}
+        {% if resume.personal_info.email %}<i class="fas fa-envelope"></i> <a href="mailto:{{ resume.personal_info.email }}">{{ resume.personal_info.email }}</a> ~ {% endif %}
+        {% if resume.personal_info.linkedin_url %}<i class="fab fa-linkedin"></i> <a href="{{ resume.personal_info.linkedin_url }}">LinkedIn</a> ~ {% endif %}
+        {% if resume.personal_info.leetcode_url %}<i class="fas fa-code"></i> <a href="{{ resume.personal_info.leetcode_url }}">LeetCode</a>{% endif %}
+      </div>
       {% if resume.summary %}
-      <div class="headline">{{ resume.summary }}</div>
+      <div class="summary">{{ resume.summary }}</div>
       {% endif %}
     </div>
 
     <div class="section">
-      <h2>Experience</h2>
+      <h2>Work Experience</h2>
       {% for exp in resume.experience %}
       <div class="experience-item">
         <div class="experience-meta">
-          <div>
-            <h3>{{ exp.role }}</h3>
-            <div>{{ exp.company }}</div>
-          </div>
-          <div>
-            {% if exp.start_date or exp.end_date %}
-            <div>
-              {{ exp.start_date or "" }} - {{ "Present" if exp.is_current else
-              (exp.end_date or "") }}
-            </div>
-            {% endif %}
-          </div>
+          <div class="left">{{ exp.company }}{% if resume.personal_info.location %} · {{ resume.personal_info.location }}{% endif %}</div>
+          <div class="right">{{ exp.start_date or "" }} - {{ "Present" if exp.is_current else (exp.end_date or "") }}</div>
         </div>
+        <div class="experience-role">{{ exp.role }}</div>
         <ul>
           {% for bullet in exp.bullets %}
           <li>{{ bullet.text }}</li>
@@ -127,12 +143,31 @@
       {% endfor %}
     </div>
 
+    {% if resume.projects %}
+    <div class="section">
+      <h2>Projects</h2>
+      {% for proj in resume.projects %}
+      <div class="project-item">
+        <div class="project-meta">
+          <div class="left">{{ proj.name }}</div>
+          <div class="right"></div>
+        </div>
+        <ul>
+          {% for bullet in proj.bullets %}
+          <li>{{ bullet.text }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     {% if resume.skills %}
     <div class="section">
-      <h2>Skills</h2>
-      <div class="skills-list">
+      <h2>Technical Skills</h2>
+      <div class="skills-section">
         {% for skill in resume.skills %}
-        <span>{{ skill }}</span>
+        <strong>{{ skill.split(':')[0] }}:</strong> {{ skill.split(':')[1] if ':' in skill else skill }}<br>
         {% endfor %}
       </div>
     </div>
@@ -142,29 +177,29 @@
     <div class="section">
       <h2>Education</h2>
       {% for edu in resume.education %}
-      <div class="experience-item">
-        <h3>{{ edu.degree or "" }}</h3>
-        <div>{{ edu.institution }}</div>
-        {% if edu.field_of_study %}
-        <div>{{ edu.field_of_study }}</div>
-        {% endif %}
-        {% if edu.start_date or edu.end_date %}
-        <div>
-          {{ edu.start_date or "" }} - {{ edu.end_date or "" }}
+      <div class="education-item">
+        <div class="education-meta">
+          <div class="left">{{ edu.institution }}</div>
+          <div class="right">{{ edu.start_date or "" }} - {{ edu.end_date or "" }}</div>
         </div>
+        <div class="education-degree">{{ edu.degree or "" }}{% if edu.field_of_study %} ({{ edu.field_of_study }}){% endif %}</div>
+        {% if edu.location %}
+        <div>{{ edu.location }}</div>
         {% endif %}
       </div>
       {% endfor %}
     </div>
     {% endif %}
 
-    {% if resume.certifications %}
+    {% if resume.achievements %}
     <div class="section">
-      <h2>Certifications</h2>
-      <div class="cert-list">
-        {% for cert in resume.certifications %}
-        <div>{{ cert }}</div>
-        {% endfor %}
+      <h2>Achievements</h2>
+      <div class="achievements">
+        <ul>
+          {% for ach in resume.achievements %}
+          <li>{{ ach }}</li>
+          {% endfor %}
+        </ul>
       </div>
     </div>
     {% endif %}

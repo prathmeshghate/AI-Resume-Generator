@@ -1,0 +1,237 @@
+%-------------------------
+% Resume in Latex
+% Author : Jake Gutierrez
+% Based off of: https://github.com/sb2nov/resume
+% License : MIT
+%------------------------
+
+\documentclass[letterpaper,11pt]{article}
+
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{setspace}
+\setlength{\multicolsep}{-3.0pt}
+\setlength{\columnsep}{-1pt}
+\setstretch{1.25} % For 1.2x spacing
+\input{glyphtounicode}
+
+
+%----------FONT OPTIONS----------
+% sans-serif
+\usepackage[sfdefault]{FiraSans}
+
+
+% \pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.19in}
+\addtolength{\topmargin}{-.7in}
+\addtolength{\textheight}{1.4in}
+
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+% Ensure that generate pdf is machine readable/ATS parsable
+\pdfgentounicode=1
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+	{#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\classesList}[4]{
+	\item\small{
+    	{#1 #2 #3 #4 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+	\begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+  	\textbf{#1} & \textbf{\small #2} \\
+  	\textit{\small#3} & \textit{\small #4} \\
+	\end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+	\item
+	\begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+  	\textit{\small#1} & \textit{\small #2} \\
+	\end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+	\item
+	\begin{tabular*}{1.001\textwidth}{l@{\extracolsep{\fill}}r}
+  	\small#1 & \textbf{\small}\\
+	\end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+
+\renewcommand\labelitemi{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.0in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+\begin{center}
+	{\Huge \scshape PRATHMESH GHATE} \\ \vspace{1pt}
+	% Navi Mumbai, Maharashtra, India \\ \vspace{1pt}
+	\small \raisebox{-0.1\height}\faPhone\ +91-9284537610 ~ \href{mailto:prathm0492001@gmail.com}{{\raisebox{-0.2\height}\faEnvelope\ {prathm0492001@gmail.com}}} ~
+    % Linkedin
+	\small \raisebox{-0.1\height}\ \href{https://www.linkedin.com/in/prathmesh-ghate/}{{\raisebox{-0.2\height}\faLinkedin\ {Linkedin}}} ~
+    % LeetCode
+	\small
+\raisebox{-0.1\height}{%
+  \href{https://leetcode.com/u/Prathmesh010/}{%
+    \faIcon{code}\,LeetCode
+  }%
+}
+
+ 
+\end{center}
+
+% \vspace{-25pt}
+% %-----------Summary-----------
+% \section{Summary}
+%  \begin{itemize}[leftmargin=0.15in,label={}]
+%     \small\item{Software Engineer with \textbf{2.8+ years of experience} in \textbf{building scalable systems}, using in React.js and .NET Core. Delivered Solutions like \textbf{payment gateway boosting revenue by 65\%} and \textbf{microservices reducing latency by 40\%}. Proficient in system design, distributed caching, and high-traffic optimization.}
+%  \end{itemize}
+
+
+
+ 
+
+ 
+\vspace{-20pt}
+%-----------EXPERIENCE-----------
+\section{Work Experience}
+  \resumeSubHeadingListStart
+	\resumeSubheading
+  	{Arcon}{Mumbai, India}
+  	{Software Developer}{April 2025 -- Present}
+  	\resumeItemListStart
+    \resumeItem{Implemented an \textbf{event-driven auto-onboarding solution} for an IAM platform, \textbf{Kafka-backed microservices} serialize client configurations into connectors and route them to an execution service, \textbf{improving onboarding efficiency by 36\%}.}
+    
+\vspace{-13pt}
+    \resumeItem{Built secure\textbf{ envelope decryption system} for a desktop IAM tool (FastAPI) implementing \textbf{AES-256} with \textbf{dynamically derived keys and IVs}. \textbf{eliminating hardcoded secrets}.}
+    
+    \resumeItem{\textbf{Optimised decryption} throughput using \textbf{Python multiprocessing queues} for parallel decryption, \textbf{reducing envelope processing} time from\textbf{ 6 secs to 2 secs} on large client envelopes.}
+    \resumeItem{ Implemented \textbf{multi-factor authentication (TOTP-based MFA + session auth}) for the Envelope decryption desktop tool, \textbf{strengthening access security} for enterprise client environments.}
+
+ }
+    
+\resumeItemListEnd
+
+ \resumeSubheading
+  	{CarTrade Tech Limited}{Navi Mumbai, India}
+  	{Software Development Engineer 1}{Apr 2024 - Mar 2025}
+ 
+\vspace{-27pt}
+\resumeSubheading
+  {}{}
+  {Associate Software Engineer}{Sept 2022 - Mar 2024}
+  \resumeItemListStart
+    \resumeItem{Led end-to-end \textbf{payment gateway migration from BillDesk to PayU} using .NET Core and gRPC, delivering zero-downtime rollout and \textbf{lifting transaction success rate by 40\%}. }
+    
+    \resumeItem{\textbf{Replaced REST with gRPC} across payment microservices, \textbf{reducing inter-service latency by 25\% under peak load}. }
+    
+    \resumeItem{Implemented \textbf{Circuit Breaker pattern (Polly)} for PayU integration, \textbf{cutting downstream error} volume \textbf{by 60\%} and preventing cascading failures. }
+    
+   \resumeItem{Designed \textbf{event-driven refund automation} using \textbf{RabbitMQ} and PayU Webhooks, slashing processing time \textbf{from 1.5 weeks to 3 days} and \textbf{eliminating 84\% of manual DB queries} — \textbf{recognized as Developer of the Month}.}
+ 
+   \resumeItem{\textbf{Eliminated XSS vulnerabilities by 90\%} via \textbf{input sanitization (regex)} and\textbf{ HTML encoding/decoding}, and prevented SQL injection using \textbf{parameterized queries}, securing booking forms and application data flows.}
+   
+    % \resumeItem{\textbf{Migrated} legacy \textbf{stored procedures to microservices} with \textbf{Memcached caching}, \textbf{cutting direct database calls by 30\% }and improving data retrieval speed.}
+     
+        	
+     \resumeItemListEnd  
+  \resumeSubHeadingListEnd
+
+% -----------PROJECTS-----------
+\section{Projects}
+  \resumeProjectHeadingccc
+      {\large\textbf{AI Resume Generator} $|$  \emph{HTML, React.js, Python, FastAPI, Uvicorn, Groq API (LLaMA 3.3)}}
+    \begin{itemize}[leftmargin=0.0in,label={}]
+      	\resumeItemListStart
+	      \vspace{-7pt}
+        	\resumeItem{Built an AI-powered resume generator that converts \textbf{raw career data into ATS-optimised resume} bullets using \textbf{Groq's LLaMA 3.3 API}, with a \textbf{live preview} rendered dynamically into a formatted HTML resume template.}
+            
+      	\resumeItemListEnd
+    \end{itemize}
+
+
+\vspace{-20pt}
+%-----------PROGRAMMING SKILLS-----------
+\section{Technical Skills}
+\begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+        \textbf{Languages}{: C\#, Python, JavaScript, C++, SQL} \\
+        \textbf{Frameworks}{: .NET Core, FastAPI, Node.js, gRPC, Electron} \\
+        \textbf{Tools}{: RabbitMQ, Kafka, Redis, Memcached, Grafana, Git, Postman, Jira} \\
+        \textbf{Database Systems}{: MySQL, MS SQL, Elasticsearch} \\
+        \textbf{Concepts}{: Microservices, Event-Driven Architecture, System Design, HLD, LLD, REST APIs, OOPs, MVC, SOLID Principles, CAP Theorem, Data Structures, Algorithms} \\
+    }}
+\end{itemize}
+
+\vspace{-18pt}
+\section{Education}
+  \resumeSubHeadingListStart
+	\resumeSubheading
+  	{Smt. Kashibai Navale College of Engineering}{August 2019 - March 2023}
+  	{{B.Tech} (Electronics and Telecommunication Engg.)(CGPA of 8.7)}{Pune, India}
+  \resumeSubHeadingListEnd
+  
+\vspace{-20pt}
+%-----------Achievements-----------
+\section{Achievements}
+\begin{itemize}[leftmargin=0.0in,label={}]
+	\resumeItemListStart
+\vspace{-3pt}
+        \resumeItem{\textbf{Developer of Month :} Engineered and Automated a \textbf{refund process} that \textbf{cut processing time by 40\%}, Using \textbf{Pub-Sub Architecture.}}
+        
+    	\resumeItem{Solved over \textbf{500+ DSA questions} across various coding platforms.}
+    	
+    \resumeItemListEnd
+\end{itemize}
+
+\end{document}

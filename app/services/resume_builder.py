@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from app.models import (
     BulletPoint,
@@ -67,8 +67,9 @@ Return JSON in the following structure:
     }
   ],
   "skills": [
-    "skill 1",
-    "skill 2"
+    "Languages: C#, Python, JavaScript",
+    "Frameworks: .NET Core, FastAPI",
+    "Tools: RabbitMQ, Git"
   ]
 }
 """.strip()
@@ -78,7 +79,7 @@ Candidate personal info:
 - Name: {payload.personal_info.full_name}
 - Headline: {payload.personal_info.headline or ''}
 
-Candidate skills (must be preserved, but you may rephrase or group them):
+Candidate skills (must be preserved, but group them into categories like Languages, Frameworks, Tools, Databases, Concepts):
 - {skills_text}
 
 Candidate experiences:
@@ -94,6 +95,7 @@ Your task:
 - Write optimized resume content tailored to this job.
 - Follow the bullet style: action verb + what you did + how you did it + outcome + quantitative or realistic approximate metric where possible.
 - Integrate relevant keywords from the job description into bullets and skills, but only if they honestly fit the candidate.
+- Group skills into logical categories (e.g., Languages, Frameworks, Tools).
 - Be concise and professional, suitable for an ATS.
 
 {schema_hint}
@@ -119,33 +121,60 @@ async def build_resume(payload: ResumeRequest) -> ResumeResponse:
     summary = raw.get("summary") or ""
 
     experience_sections: List[ExperienceSection] = []
-    for exp_input in payload.experiences:
-        # Try to match generated experience to input by company & role, else fall back
-        matched = None
-        for item in raw.get("experience", []):
-            if (
-                item.get("company", "").lower() == exp_input.company.lower()
-                and item.get("role", "").lower() == exp_input.role.lower()
-            ):
-                matched = item
-                break
+    raw_experience = raw.get("experience")
+    if not isinstance(raw_experience, list) or not raw_experience:
+        raise ModelServiceError("Model returned invalid experience data. Please retry.")
 
-        source = matched or {}
-        bullets_data = source.get("bullets") or []
+    def normalize(text: str) -> str:
+        return (text or "").strip().lower()
+
+    def find_matching_experience(exp_input: ExperienceInput) -> dict | None:
+        company = normalize(exp_input.company)
+        role = normalize(exp_input.role)
+
+        for item in raw_experience:
+            if (
+                normalize(item.get("company")) == company
+                and normalize(item.get("role")) == role
+            ):
+                return item
+
+        for item in raw_experience:
+            item_company = normalize(item.get("company"))
+            item_role = normalize(item.get("role"))
+            if company and item_company and (company in item_company or item_company in company) and item_role == role:
+                return item
+
+        for item in raw_experience:
+            item_company = normalize(item.get("company"))
+            item_role = normalize(item.get("role"))
+            if company and item_company and (company in item_company or item_company in company) and role and item_role and (role in item_role or item_role in role):
+                return item
+
+        return None
+
+    for idx, exp_input in enumerate(payload.experiences):
+        matched = find_matching_experience(exp_input)
+        if matched is None and idx < len(raw_experience):
+            matched = raw_experience[idx]
+
+        if not isinstance(matched, dict):
+            raise ModelServiceError("Model returned incomplete experience data. Please retry.")
+
+        bullets_data = matched.get("bullets") or []
         bullets = [
             BulletPoint(text=b.get("text", "").strip())
             for b in bullets_data
             if isinstance(b, dict) and b.get("text")
-        ] or [
-            BulletPoint(
-                text="Generated bullet points will appear here once the model returns valid data."
-            )
         ]
+
+        if not bullets:
+            raise ModelServiceError("Model returned experience items without bullet points. Please retry.")
 
         experience_sections.append(
             ExperienceSection(
-                company=source.get("company") or exp_input.company,
-                role=source.get("role") or exp_input.role,
+                company=matched.get("company") or exp_input.company,
+                role=matched.get("role") or exp_input.role,
                 bullets=bullets,
                 start_date=exp_input.start_date,
                 end_date=exp_input.end_date,
@@ -156,10 +185,13 @@ async def build_resume(payload: ResumeRequest) -> ResumeResponse:
     skills = raw.get("skills") or payload.skills
 
     return ResumeResponse(
+        personal_info=payload.personal_info,
         headline=headline,
         summary=summary,
         experience=experience_sections,
         skills=skills,
         education=payload.education,
         certifications=payload.certifications,
+        projects=payload.projects,
+        achievements=payload.achievements,
     )

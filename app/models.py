@@ -11,6 +11,7 @@ class PersonalInfo(BaseModel):
     location: Optional[str] = None
     linkedin_url: Optional[str] = None
     github_url: Optional[str] = None
+    leetcode_url: Optional[str] = None
 
 
 class ExperienceInput(BaseModel):
@@ -28,6 +29,7 @@ class EducationInput(BaseModel):
     institution: str
     degree: Optional[str] = None
     field_of_study: Optional[str] = None
+    location: Optional[str] = None
     start_date: Optional[str] = None
     end_date: Optional[str] = None
 
@@ -38,17 +40,24 @@ class JobDescription(BaseModel):
     description_text: str
 
 
+class BulletPoint(BaseModel):
+    text: str
+
+
+class Project(BaseModel):
+    name: str
+    bullets: List[BulletPoint]
+
+
 class ResumeRequest(BaseModel):
     personal_info: PersonalInfo
     experiences: List[ExperienceInput]
     skills: List[str]
     education: Optional[List[EducationInput]] = None
     certifications: Optional[List[str]] = None
+    projects: Optional[List[Project]] = None
+    achievements: Optional[List[str]] = None
     job_description: JobDescription
-
-
-class BulletPoint(BaseModel):
-    text: str
 
 
 class ExperienceSection(BaseModel):
@@ -61,9 +70,12 @@ class ExperienceSection(BaseModel):
 
 
 class ResumeResponse(BaseModel):
+    personal_info: PersonalInfo
     headline: Optional[str]
     summary: Optional[str]
     experience: List[ExperienceSection]
     skills: List[str]
     education: Optional[List[EducationInput]] = None
     certifications: Optional[List[str]] = None
+    projects: Optional[List[Project]] = None
+    achievements: Optional[List[str]] = None

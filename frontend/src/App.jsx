@@ -1,11 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
+
+const STORAGE_KEY = 'resume-generator-form'
 
 const initialForm = {
   personal_info: {
     full_name: '',
     headline: '',
     email: '',
+    phone: '',
+    location: '',
+    linkedin_url: '',
+    github_url: '',
+    leetcode_url: '',
   },
   experiences: [
     {
@@ -20,16 +27,97 @@ const initialForm = {
     },
   ],
   skills: '',
-  education: '',
+  education: [
+    {
+      institution: '',
+      degree: '',
+      field_of_study: '',
+      location: '',
+      start_date: '',
+      end_date: '',
+    },
+  ],
   certifications: '',
+  projects: [
+    {
+      name: '',
+      bullets: '',
+    },
+  ],
+  achievements: '',
   job_description: '',
 }
 
+const normalizeSavedForm = (savedForm) => {
+  if (!savedForm || typeof savedForm !== 'object') {
+    return initialForm
+  }
+
+  const education = Array.isArray(savedForm.education)
+    ? savedForm.education
+    : savedForm.education
+    ? [
+        {
+          institution: String(savedForm.education),
+          degree: savedForm.degree || '',
+          field_of_study: savedForm.field_of_study || '',
+          location: savedForm.location || '',
+          start_date: savedForm.start_date || '',
+          end_date: savedForm.end_date || '',
+        },
+      ]
+    : initialForm.education
+
+  const projects = Array.isArray(savedForm.projects)
+    ? savedForm.projects
+    : initialForm.projects
+
+  return {
+    ...initialForm,
+    ...savedForm,
+    personal_info: {
+      ...initialForm.personal_info,
+      ...(savedForm.personal_info || {}),
+    },
+    experiences: Array.isArray(savedForm.experiences)
+      ? savedForm.experiences
+      : initialForm.experiences,
+    education,
+    certifications: savedForm.certifications || '',
+    projects,
+    achievements: savedForm.achievements || '',
+    job_description: savedForm.job_description || initialForm.job_description,
+  }
+}
+
 function App() {
-  const [form, setForm] = useState(initialForm)
+  const [form, setForm] = useState(() => {
+    if (typeof window === 'undefined') {
+      return initialForm
+    }
+
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY)
+      return saved ? normalizeSavedForm(JSON.parse(saved)) : initialForm
+    } catch {
+      return initialForm
+    }
+  })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [resumePreview, setResumePreview] = useState(null)
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(form))
+    } catch {
+      // ignore storage errors in private mode
+    }
+  }, [form])
+
+  const educationItems = Array.isArray(form.education)
+    ? form.education
+    : initialForm.education
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -62,37 +150,114 @@ function App() {
     }))
   }
 
+  const handleProjectChange = (index, field, value) => {
+    setForm((prev) => {
+      const next = [...prev.projects]
+      next[index] = { ...next[index], [field]: value }
+      return { ...prev, projects: next }
+    })
+  }
+
+  const addProject = () => {
+    setForm((prev) => ({
+      ...prev,
+      projects: [
+        ...prev.projects,
+        {
+          name: '',
+          bullets: '',
+        },
+      ],
+    }))
+  }
+
+  const handleEducationChange = (index, field, value) => {
+    setForm((prev) => {
+      const nextEducation = Array.isArray(prev.education)
+        ? [...prev.education]
+        : [...initialForm.education]
+      nextEducation[index] = { ...nextEducation[index], [field]: value }
+      return { ...prev, education: nextEducation }
+    })
+  }
+
+  const addEducation = () => {
+    setForm((prev) => {
+      const currentEducation = Array.isArray(prev.education)
+        ? prev.education
+        : initialForm.education
+      return {
+        ...prev,
+        education: [
+          ...currentEducation,
+          {
+            institution: '',
+            degree: '',
+            field_of_study: '',
+            location: '',
+            start_date: '',
+            end_date: '',
+          },
+        ],
+      }
+    })
+  }
+
   const buildPayload = () => {
     return {
       personal_info: {
         full_name: form.personal_info.full_name,
         headline: form.personal_info.headline || null,
         email: form.personal_info.email || null,
+        phone: form.personal_info.phone || null,
+        location: form.personal_info.location || null,
+        linkedin_url: form.personal_info.linkedin_url || null,
+        github_url: form.personal_info.github_url || null,
+        leetcode_url: form.personal_info.leetcode_url || null,
       },
-      experiences: form.experiences.map((exp) => ({
-        company: exp.company,
-        role: exp.role,
-        start_date: exp.start_date || null,
-        end_date: exp.end_date || null,
-        is_current: exp.is_current || false,
-        responsibilities: exp.responsibilities || null,
-        achievements: exp.achievements || null,
-        tech_stack: exp.tech_stack
-          ? exp.tech_stack.split(',').map((s) => s.trim())
-          : [],
-      })),
+      experiences: Array.isArray(form.experiences)
+        ? form.experiences.map((exp) => ({
+            company: exp.company,
+            role: exp.role,
+            start_date: exp.start_date || null,
+            end_date: exp.end_date || null,
+            is_current: exp.is_current || false,
+            responsibilities: exp.responsibilities || null,
+            achievements: exp.achievements || null,
+            tech_stack: exp.tech_stack
+              ? exp.tech_stack.split(',').map((s) => s.trim())
+              : [],
+          }))
+        : [],
       skills: form.skills
         ? form.skills.split(',').map((s) => s.trim())
         : [],
-      education: form.education
-        ? [
-            {
-              institution: form.education,
-            },
-          ]
+      education: Array.isArray(form.education)
+        ? form.education
+            .filter((edu) => edu.institution || edu.degree || edu.field_of_study)
+            .map((edu) => ({
+              institution: edu.institution || '',
+              degree: edu.degree || null,
+              field_of_study: edu.field_of_study || null,
+              start_date: edu.start_date || null,
+              end_date: edu.end_date || null,
+              location: edu.location || null,
+            }))
         : [],
       certifications: form.certifications
         ? form.certifications.split(',').map((s) => s.trim())
+        : [],
+      projects: Array.isArray(form.projects)
+        ? form.projects.filter((p) => p.name).map((proj) => ({
+            name: proj.name,
+            bullets: proj.bullets
+              .split('\n')
+              .filter((b) => b.trim())
+              .map((b) => ({ text: b.trim() })),
+          }))
+        : [],
+      achievements: form.achievements
+        ? form.achievements.split('\n').filter(a => a.trim())
         : [],
       job_description: {
         target_title: null,
@@ -217,6 +382,91 @@ function App() {
             />
           </div>
 
+          <div className="field-group">
+            <label>Phone (optional)</label>
+            <input
+              type="text"
+              value={form.personal_info.phone}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  personal_info: {
+                    ...prev.personal_info,
+                    phone: e.target.value,
+                  },
+                }))
+              }
+            />
+          </div>
+
+          <div className="field-group">
+            <label>Location (optional)</label>
+            <input
+              type="text"
+              value={form.personal_info.location}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  personal_info: {
+                    ...prev.personal_info,
+                    location: e.target.value,
+                  },
+                }))
+              }
+            />
+          </div>
+
+          <div className="field-group">
+            <label>LinkedIn URL (optional)</label>
+            <input
+              type="url"
+              value={form.personal_info.linkedin_url}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  personal_info: {
+                    ...prev.personal_info,
+                    linkedin_url: e.target.value,
+                  },
+                }))
+              }
+            />
+          </div>
+
+          <div className="field-group">
+            <label>GitHub URL (optional)</label>
+            <input
+              type="url"
+              value={form.personal_info.github_url}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  personal_info: {
+                    ...prev.personal_info,
+                    github_url: e.target.value,
+                  },
+                }))
+              }
+            />
+          </div>
+
+          <div className="field-group">
+            <label>LeetCode URL (optional)</label>
+            <input
+              type="url"
+              value={form.personal_info.leetcode_url}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  personal_info: {
+                    ...prev.personal_info,
+                    leetcode_url: e.target.value,
+                  },
+                }))
+              }
+            />
+          </div>
+
           <h3>Experience</h3>
           {form.experiences.map((exp, index) => (
             <div key={index} className="experience-block">
@@ -334,15 +584,84 @@ function App() {
             />
           </div>
 
-          <div className="field-group">
-            <label>Education (simple text for now)</label>
-            <input
-              type="text"
-              placeholder="B.Tech in Computer Science, XYZ University"
-              value={form.education}
-              onChange={(e) => handleChange('education', e.target.value)}
-            />
-          </div>
+          <h3>Education</h3>
+          {form.education.map((edu, index) => (
+            <div key={index} className="experience-block">
+              <div className="field-row">
+                <div className="field-group">
+                  <label>Institution</label>
+                  <input
+                    type="text"
+                    value={edu.institution}
+                    onChange={(e) =>
+                      handleEducationChange(index, 'institution', e.target.value)
+                    }
+                  />
+                </div>
+                <div className="field-group">
+                  <label>Degree</label>
+                  <input
+                    type="text"
+                    value={edu.degree}
+                    onChange={(e) =>
+                      handleEducationChange(index, 'degree', e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="field-row">
+                <div className="field-group">
+                  <label>Field of study</label>
+                  <input
+                    type="text"
+                    value={edu.field_of_study}
+                    onChange={(e) =>
+                      handleEducationChange(index, 'field_of_study', e.target.value)
+                    }
+                  />
+                </div>
+                <div className="field-group">
+                  <label>Location / City</label>
+                  <input
+                    type="text"
+                    value={edu.location}
+                    onChange={(e) =>
+                      handleEducationChange(index, 'location', e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="field-row">
+                <div className="field-group">
+                  <label>Start date</label>
+                  <input
+                    type="text"
+                    placeholder="Aug 2019"
+                    value={edu.start_date}
+                    onChange={(e) =>
+                      handleEducationChange(index, 'start_date', e.target.value)
+                    }
+                  />
+                </div>
+                <div className="field-group">
+                  <label>End date</label>
+                  <input
+                    type="text"
+                    placeholder="Mar 2023"
+                    value={edu.end_date}
+                    onChange={(e) =>
+                      handleEducationChange(index, 'end_date', e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+          <button type="button" className="secondary" onClick={addEducation}>
+            + Add another education entry
+          </button>
 
           <div className="field-group">
             <label>Certifications (comma separated)</label>
@@ -350,6 +669,44 @@ function App() {
               type="text"
               value={form.certifications}
               onChange={(e) => handleChange('certifications', e.target.value)}
+            />
+          </div>
+
+          <h3>Projects</h3>
+          {form.projects.map((proj, index) => (
+            <div key={index} className="project-block">
+              <div className="field-group">
+                <label>Project Name</label>
+                <input
+                  type="text"
+                  value={proj.name}
+                  onChange={(e) =>
+                    handleProjectChange(index, 'name', e.target.value)
+                  }
+                />
+              </div>
+              <div className="field-group">
+                <label>Bullets (one per line)</label>
+                <textarea
+                  rows="3"
+                  value={proj.bullets}
+                  onChange={(e) =>
+                    handleProjectChange(index, 'bullets', e.target.value)
+                  }
+                />
+              </div>
+            </div>
+          ))}
+          <button type="button" className="secondary" onClick={addProject}>
+            + Add another project
+          </button>
+
+          <div className="field-group">
+            <label>Achievements (one per line)</label>
+            <textarea
+              rows="3"
+              value={form.achievements}
+              onChange={(e) => handleChange('achievements', e.target.value)}
             />
           </div>
 
@@ -376,42 +733,117 @@ function App() {
               {loading ? 'Preparing PDF…' : 'Download PDF'}
             </button>
           </div>
+          <div className="help-text">
+            Your form data is saved in your browser. Reloading the page will keep your inputs.
+          </div>
 
           {error && <div className="error">{error}</div>}
         </section>
 
         <section className="panel preview">
           <h2>Preview</h2>
-          {!resumePreview && (
+          {!resumePreview && !loading && (
             <p className="placeholder">
               Fill out your details and click &quot;Generate resume&quot; to see
               a preview here.
             </p>
           )}
+          {loading && (
+            <div className="preview-loading">Generating resume…</div>
+          )}
           {resumePreview && (
             <div className="preview-content">
-              <h3>{resumePreview.headline || form.personal_info.full_name}</h3>
-              {resumePreview.summary && <p>{resumePreview.summary}</p>}
+              <div className="preview-header">
+                <h3>{resumePreview.personal_info?.full_name || form.personal_info.full_name}</h3>
+                <div className="preview-contact">
+                  {resumePreview.personal_info?.phone && (
+                    <span>{resumePreview.personal_info.phone}</span>
+                  )}
+                  {resumePreview.personal_info?.email && (
+                    <span>{resumePreview.personal_info.email}</span>
+                  )}
+                  {resumePreview.personal_info?.linkedin_url && (
+                    <span>LinkedIn</span>
+                  )}
+                  {resumePreview.personal_info?.leetcode_url && (
+                    <span>LeetCode</span>
+                  )}
+                </div>
+                {resumePreview.summary && (
+                  <div className="preview-summary">{resumePreview.summary}</div>
+                )}
+              </div>
 
-              <h4>Experience</h4>
-              {resumePreview.experience.map((exp, idx) => (
-                <div key={idx} className="preview-exp">
-                  <strong>
-                    {exp.role} · {exp.company}
-                  </strong>
+              <div className="preview-section">
+                <h4>Work Experience</h4>
+                {resumePreview.experience.map((exp, idx) => (
+                  <div key={idx} className="preview-exp">
+                    <div className="preview-exp-header">
+                      <strong>{exp.role} · {exp.company}</strong>
+                      <span>{exp.start_date || ''}{exp.start_date && exp.end_date ? ' - ' : ''}{exp.is_current ? 'Present' : exp.end_date || ''}</span>
+                    </div>
+                    <ul>
+                      {exp.bullets.map((b, i) => (
+                        <li key={i}>{b.text}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+
+              {resumePreview.projects?.length > 0 && (
+                <div className="preview-section">
+                  <h4>Projects</h4>
+                  {resumePreview.projects.map((proj, idx) => (
+                    <div key={idx} className="preview-exp">
+                      <div className="preview-exp-header">
+                        <strong>{proj.name}</strong>
+                      </div>
+                      <ul>
+                        {proj.bullets.map((b, i) => (
+                          <li key={i}>{b.text}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {resumePreview.skills?.length > 0 && (
+                <div className="preview-section">
+                  <h4>Technical Skills</h4>
+                  <div className="preview-skills">
+                    {resumePreview.skills.map((skill, idx) => (
+                      <div key={idx} className="preview-skill-item">{skill}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {resumePreview.education?.length > 0 && (
+                <div className="preview-section">
+                  <h4>Education</h4>
+                  {resumePreview.education.map((edu, idx) => (
+                    <div key={idx} className="preview-exp">
+                      <div className="preview-exp-header">
+                        <strong>{edu.institution}</strong>
+                        <span>{edu.start_date || ''}{edu.start_date && edu.end_date ? ' - ' : ''}{edu.end_date || ''}</span>
+                      </div>
+                      <div>{edu.degree || ''}{edu.field_of_study ? ` (${edu.field_of_study})` : ''}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {resumePreview.achievements?.length > 0 && (
+                <div className="preview-section">
+                  <h4>Achievements</h4>
                   <ul>
-                    {exp.bullets.map((b, i) => (
-                      <li key={i}>{b.text}</li>
+                    {resumePreview.achievements.map((ach, i) => (
+                      <li key={i}>{ach}</li>
                     ))}
                   </ul>
                 </div>
-              ))}
-
-              {resumePreview.skills?.length > 0 && (
-                <>
-                  <h4>Skills</h4>
-                  <p>{resumePreview.skills.join(', ')}</p>
-                </>
               )}
             </div>
           )}

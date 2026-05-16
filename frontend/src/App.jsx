@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import './App.css'
 
 const STORAGE_KEY = 'resume-generator-form'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+console.log("API_BASE_URL:", API_BASE_URL);
 
 const initialForm = {
   personal_info: {
@@ -272,7 +274,7 @@ function App() {
     setError('')
     try {
       const payload = buildPayload()
-      const res = await fetch('/api/resume/generate', {
+      const res = await fetch(`${API_BASE_URL}/api/resume/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -294,7 +296,7 @@ function App() {
     setError('')
     try {
       const payload = buildPayload()
-      const res = await fetch('/api/resume/generate-pdf', {
+      const res = await fetch(`${API_BASE_URL}/api/resume/generate-pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

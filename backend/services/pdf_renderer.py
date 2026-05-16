@@ -6,8 +6,7 @@ from typing import Optional
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from weasyprint import HTML
 
-from app.models import ResumeResponse
-
+from models import ResumeResponse
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = BASE_DIR / "templates"
 OUTPUT_DIR = BASE_DIR / "generated_pdfs"

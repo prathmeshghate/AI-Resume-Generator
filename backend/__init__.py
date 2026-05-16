@@ -1,6 +1,6 @@
 from fastapi import APIRouter, FastAPI
 
-from app.routes.resume import router as resume_router
+from routes.resume import router as resume_router
 
 
 def create_app() -> FastAPI:

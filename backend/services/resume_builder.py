@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from app.models import (
+from models import (
     BulletPoint,
     ExperienceInput,
     ExperienceSection,
@@ -10,7 +10,7 @@ from app.models import (
     ResumeRequest,
     ResumeResponse,
 )
-from app.services.model_service import get_model_service
+from .model_service import get_model_service
 
 
 SYSTEM_PROMPT = """

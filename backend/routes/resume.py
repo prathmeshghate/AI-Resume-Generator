@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Response, status
 from fastapi.responses import FileResponse
 
-from app.models import ResumeRequest, ResumeResponse
-from app.services.pdf_renderer import generate_resume_pdf
-from app.services.resume_builder import build_resume
+from models import ResumeRequest, ResumeResponse
+from services.pdf_renderer import generate_resume_pdf
+from services.resume_builder import build_resume
 
 router = APIRouter()
 

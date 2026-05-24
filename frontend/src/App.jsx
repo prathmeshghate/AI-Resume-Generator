@@ -107,7 +107,7 @@ function App() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [resumePreview, setResumePreview] = useState(null)
+  const [resumePreviewHtml, setResumePreviewHtml] = useState('')
 
   useEffect(() => {
     try {
@@ -116,10 +116,6 @@ function App() {
       // ignore storage errors in private mode
     }
   }, [form])
-
-  const educationItems = Array.isArray(form.education)
-    ? form.education
-    : initialForm.education
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -274,7 +270,7 @@ function App() {
     setError('')
     try {
       const payload = buildPayload()
-      const res = await fetch(`${API_BASE_URL}/api/resume/generate`, {
+      const res = await fetch(`${API_BASE_URL}/api/resume/generate-preview`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -282,8 +278,8 @@ function App() {
       if (!res.ok) {
         throw new Error('Failed to generate resume')
       }
-      const data = await res.json()
-      setResumePreview(data)
+      const html = await res.text()
+      setResumePreviewHtml(html)
     } catch (err) {
       setError(err.message || 'Something went wrong')
     } finally {
@@ -317,6 +313,20 @@ function App() {
       setError(err.message || 'Something went wrong')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handlePreviewFrameLoad = (event) => {
+    const frame = event.currentTarget
+    const documentElement = frame.contentDocument?.documentElement
+    const body = frame.contentDocument?.body
+    const contentHeight = Math.max(
+      documentElement?.scrollHeight || 0,
+      body?.scrollHeight || 0,
+    )
+
+    if (contentHeight) {
+      frame.style.height = `${contentHeight}px`
     }
   }
 
@@ -744,7 +754,7 @@ function App() {
 
         <section className="panel preview">
           <h2>Preview</h2>
-          {!resumePreview && !loading && (
+          {!resumePreviewHtml && !loading && (
             <p className="placeholder">
               Fill out your details and click &quot;Generate resume&quot; to see
               a preview here.
@@ -753,100 +763,14 @@ function App() {
           {loading && (
             <div className="preview-loading">Generating resume…</div>
           )}
-          {resumePreview && (
-            <div className="preview-content">
-              <div className="preview-header">
-                <h3>{resumePreview.personal_info?.full_name || form.personal_info.full_name}</h3>
-                <div className="preview-contact">
-                  {resumePreview.personal_info?.phone && (
-                    <span>{resumePreview.personal_info.phone}</span>
-                  )}
-                  {resumePreview.personal_info?.email && (
-                    <span>{resumePreview.personal_info.email}</span>
-                  )}
-                  {resumePreview.personal_info?.linkedin_url && (
-                    <span>LinkedIn</span>
-                  )}
-                  {resumePreview.personal_info?.leetcode_url && (
-                    <span>LeetCode</span>
-                  )}
-                </div>
-                {resumePreview.summary && (
-                  <div className="preview-summary">{resumePreview.summary}</div>
-                )}
-              </div>
-
-              <div className="preview-section">
-                <h4>Work Experience</h4>
-                {resumePreview.experience.map((exp, idx) => (
-                  <div key={idx} className="preview-exp">
-                    <div className="preview-exp-header">
-                      <strong>{exp.role} · {exp.company}</strong>
-                      <span>{exp.start_date || ''}{exp.start_date && exp.end_date ? ' - ' : ''}{exp.is_current ? 'Present' : exp.end_date || ''}</span>
-                    </div>
-                    <ul>
-                      {exp.bullets.map((b, i) => (
-                        <li key={i}>{b.text}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-
-              {resumePreview.projects?.length > 0 && (
-                <div className="preview-section">
-                  <h4>Projects</h4>
-                  {resumePreview.projects.map((proj, idx) => (
-                    <div key={idx} className="preview-exp">
-                      <div className="preview-exp-header">
-                        <strong>{proj.name}</strong>
-                      </div>
-                      <ul>
-                        {proj.bullets.map((b, i) => (
-                          <li key={i}>{b.text}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {resumePreview.skills?.length > 0 && (
-                <div className="preview-section">
-                  <h4>Technical Skills</h4>
-                  <div className="preview-skills">
-                    {resumePreview.skills.map((skill, idx) => (
-                      <div key={idx} className="preview-skill-item">{skill}</div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {resumePreview.education?.length > 0 && (
-                <div className="preview-section">
-                  <h4>Education</h4>
-                  {resumePreview.education.map((edu, idx) => (
-                    <div key={idx} className="preview-exp">
-                      <div className="preview-exp-header">
-                        <strong>{edu.institution}</strong>
-                        <span>{edu.start_date || ''}{edu.start_date && edu.end_date ? ' - ' : ''}{edu.end_date || ''}</span>
-                      </div>
-                      <div>{edu.degree || ''}{edu.field_of_study ? ` (${edu.field_of_study})` : ''}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {resumePreview.achievements?.length > 0 && (
-                <div className="preview-section">
-                  <h4>Achievements</h4>
-                  <ul>
-                    {resumePreview.achievements.map((ach, i) => (
-                      <li key={i}>{ach}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+          {resumePreviewHtml && (
+            <div className="preview-page-shell">
+              <iframe
+                className="preview-frame"
+                title="Resume PDF preview"
+                srcDoc={resumePreviewHtml}
+                onLoad={handlePreviewFrameLoad}
+              />
             </div>
           )}
         </section>

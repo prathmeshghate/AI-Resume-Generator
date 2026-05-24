@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Response, status
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 
 from models import ResumeRequest, ResumeResponse
-from services.pdf_renderer import generate_resume_pdf
+from services.pdf_renderer import generate_resume_pdf, render_resume_html
 from services.resume_builder import build_resume
 
 router = APIRouter()
@@ -45,5 +45,22 @@ async def generate_resume_pdf_endpoint(payload: ResumeRequest) -> FileResponse:
         filename=pdf_path.name,
         media_type="application/pdf",
     )
+
+
+@router.post("/generate-preview", response_class=HTMLResponse)
+async def generate_resume_preview_endpoint(payload: ResumeRequest) -> HTMLResponse:
+    """
+    Generate resume content and return the same HTML template used for PDF export.
+    """
+    try:
+        resume = await build_resume(payload)
+        html_content = render_resume_html(resume)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate resume preview: {exc}",
+        ) from exc
+
+    return HTMLResponse(content=html_content)
 
 
